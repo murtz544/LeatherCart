@@ -1,17 +1,34 @@
 import { addressDummyData } from "@/assets/assets";
 import { useAppContext } from "@/context/AppContext";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 const OrderSummary = () => {
 
-  const { currency, router, getCartCount, getCartAmount } = useAppContext()
+  const { currency, router, getCartCount, getCartAmount, getToken, user, cartItems, setCartItems } = useAppContext()
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const [userAddresses, setUserAddresses] = useState([]);
 
   const fetchUserAddresses = async () => {
-    setUserAddresses(addressDummyData);
+    try {
+      const token = await getToken()
+      const {data} = await axios.get('api/user/get-address', { headers: { Authorization: `Bearer ${token}` } });
+
+      if (data.success) {
+        setUserAddresses(data.addresses);
+        if (data.addresses.length > 0) {
+          setSelectedAddress(data.addresses[0]);
+        }
+      } else {
+        toast.error(data.message);
+        console.error("Failed to fetch user addresses:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching user addresses:", error);
+      toast.error("Failed to fetch addresses. Please try again later.");
+    }
   }
 
   const handleAddressSelect = (address) => {
@@ -24,8 +41,10 @@ const OrderSummary = () => {
   }
 
   useEffect(() => {
-    fetchUserAddresses();
-  }, [])
+    if (user) {
+      fetchUserAddresses();
+    }
+  }, [user])
 
   return (
     <div className="w-full md:w-96 bg-gray-500/5 p-5">

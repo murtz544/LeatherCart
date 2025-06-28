@@ -2,6 +2,7 @@ import { Inngest } from "inngest";
 import { connect } from "mongoose";
 import connectDB from "./db";
 import User from "@/models/user";
+import order from "@/models/Order";
 
 // Create a client to send and receive events
 export const inngest = new Inngest({ id: "leathercart" });
@@ -52,5 +53,30 @@ export const syncUserDeletion = inngest.createFunction(
         const { id } = event.data;
         await connectDB()
         await User.findByIdAndDelete(id);
+    }
+)
+
+export const createUserOrder = inngest.createFunction(
+    {
+        id: 'create-user-order',
+        batchEvents: {
+            maxSize: 25,
+            timeout: '5s'
+        }
+    },
+    { event: 'order/created' },
+    async ({events}) => {
+        const orders = events.map((event) => {
+            return {
+                userId: event.data.userId,
+                items: event.data.items,
+                amount: event.data.amount,
+                address: event.data.address,
+                date: event.data.date,
+            }
+        })
+        await connectDB();
+        await order.insertMany(orders);
+        return { success: true, processed: orders.length, message: "Orders processed successfully" };
     }
 )
