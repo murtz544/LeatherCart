@@ -64,19 +64,42 @@ export const createUserOrder = inngest.createFunction(
   },
   { event: 'order/created' },
   async ({ events }) => {
-    const orders = events.map((event) => ({
-      userId: event.data.userId,
-      items: event.data.items,
-      amount: event.data.amount,
-      address: event.data.address,
-      date: event.data.date,
-    }));
+    // 🧪 Debug: Log all incoming events
+    console.log("📥 Received events:", events.length);
+    events.forEach((event, index) => {
+      console.log(`Event ${index}:`, {
+        eventId: event.id,
+        data: event.data,
+        amount: event.data?.amount,
+        amountType: typeof event.data?.amount
+      });
+    });
+
+    const orders = events.map((event, index) => {
+      const order = {
+        userId: event.data.userId,
+        items: event.data.items,
+        amount: event.data.amount,
+        address: event.data.address,
+        date: event.data.date,
+      };
+      
+      console.log(`Mapped order ${index}:`, order);
+      return order;
+    });
 
     // 🧪 Debug: Check for any undefined amount values
     const invalidOrders = orders.filter(order => typeof order.amount !== 'number');
     if (invalidOrders.length > 0) {
-      console.error("❌ Some orders have invalid or missing `amount`:", invalidOrders);
-      throw new Error("Validation failed: Some events are missing a valid `amount` field.");
+      console.error("❌ Invalid orders found:");
+      invalidOrders.forEach((order, index) => {
+        console.error(`Invalid order ${index}:`, {
+          amount: order.amount,
+          amountType: typeof order.amount,
+          fullOrder: order
+        });
+      });
+      throw new Error(`Validation failed: ${invalidOrders.length} events are missing a valid \`amount\` field.`);
     }
 
     await connectDB();
