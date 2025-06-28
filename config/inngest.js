@@ -1,12 +1,10 @@
 import { Inngest } from "inngest";
-import { connect } from "mongoose";
 import connectDB from "./db";
 import User from "@/models/user";
-import order from "@/models/Order";
+import order from "@/models/order";
 
 // Create a client to send and receive events
 export const inngest = new Inngest({ id: "leathercart" });
-
 
 export const syncUserCreation = inngest.createFunction(
     {

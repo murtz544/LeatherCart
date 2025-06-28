@@ -2,6 +2,7 @@ import { addressDummyData } from "@/assets/assets";
 import { useAppContext } from "@/context/AppContext";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const OrderSummary = () => {
 
@@ -37,7 +38,37 @@ const OrderSummary = () => {
   };
 
   const createOrder = async () => {
+    try {
+      if (!selectedAddress) {
+        return toast.error("Please select an address to proceed.");
+      }
+      let cartItemsArray = Object.keys(cartItems).map((key) => ({
+        product:key, quantity: cartItems[key]
+      }));
+      cartItemsArray = cartItemsArray.filter(item => item.quantity > 0);
+      if (cartItemsArray.length === 0) {
+        return toast.error("Your cart is empty. Please add items to your cart before placing an order.");
+      }
 
+      const token = await getToken();
+      const { data } = await axios.post('/api/order/create', {
+        address: selectedAddress._id,
+        items: cartItemsArray
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (data.success) {
+        toast.success(data.message);
+        setCartItems({});
+        router.push('/order-placed');
+      } else {
+        toast.error(data.message);
+        console.error("Failed to create order:", data.message);
+      }
+  } catch (error) {
+      console.error("Error creating order:", error);
+      toast.error("Failed to create order. Please try again later.");
+  }
   }
 
   useEffect(() => {
