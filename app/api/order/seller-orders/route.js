@@ -1,6 +1,7 @@
 import connectDB from "@/config/db";
 import authSeller from "@/lib/authSeller";
-import product from "@/models/product";
+import address from "@/models/address";
+import order from "@/models/Order";
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -14,8 +15,10 @@ export async function GET(request) {
         }
 
         await connectDB();
-        const products = await product.find({})
-        return NextResponse.json({ success: true, products });
+
+        address.length
+        const orders = await order.find({ }).populate('address items.product');
+        return NextResponse.json({ success: true, orders });
     } catch (error) {
         return NextResponse.json({ success: false, message: error.message });
     }
