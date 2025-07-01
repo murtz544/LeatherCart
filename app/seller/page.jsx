@@ -13,7 +13,7 @@ const AddProduct = () => {
   const [files, setFiles] = useState([]);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('Earphone');
+  const [category, setCategory] = useState('');
   const [price, setPrice] = useState('');
   const [offerPrice, setOfferPrice] = useState('');
 
@@ -42,7 +42,7 @@ const AddProduct = () => {
         setFiles([]);
         setName('');
         setDescription('');
-        setCategory('Earphone');
+        setCategory('');
         setPrice('');
         setOfferPrice('');
       } else {
@@ -124,12 +124,12 @@ const AddProduct = () => {
               onChange={(e) => setCategory(e.target.value)}
               defaultValue={category}
             >
-              <option value="Earphone">Earphone</option>
-              <option value="Headphone">Headphone</option>
-              <option value="Watch">Watch</option>
-              <option value="Smartphone">Smartphone</option>
-              <option value="Laptop">Laptop</option>
-              <option value="Camera">Camera</option>
+              <option value="Earphone">Bag</option>
+              <option value="Headphone">Belt</option>
+              <option value="Watch">Wallet</option>
+              <option value="Smartphone">Cigarette box</option>
+              <option value="Laptop">Laptop bag</option>
+              <option value="Camera">Mobile Cover</option>
               <option value="Accessories">Accessories</option>
             </select>
           </div>
